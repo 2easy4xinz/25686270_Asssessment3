@@ -10,7 +10,16 @@ public class CherryController : MonoBehaviour
     [SerializeField] private float leftBound = -10f;
     [SerializeField] private float rightBound = 10f;
 
+    [Header("Cherry Collection")]
+    [SerializeField] private AudioClip eatCherryClip;
+    private HUDManager hudManager;
+
     private bool isMoving = false;
+
+    void Start()
+    {
+        hudManager = Object.FindAnyObjectByType<HUDManager>();
+    }
 
     void Update()
     {
@@ -47,8 +56,20 @@ public class CherryController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+
         if (collision.CompareTag("Player"))
         {
+    
+            if (hudManager != null)
+            {
+                hudManager.AddScore(100);
+            }
+
+            if (eatCherryClip != null)
+            {
+                AudioSource.PlayClipAtPoint(eatCherryClip, transform.position);
+            }
+
             DeactivateCherry();
         }
     }
