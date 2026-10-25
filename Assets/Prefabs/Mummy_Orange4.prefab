@@ -370,6 +370,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostController
   animator: {fileID: 7226427240659883807}
+  wallTilemap: {fileID: 0}
+  ghostID: 4
+  pacStudentTransform: {fileID: 0}
+  pacStudentSpeed: 5
+  spawnCenter: {x: 14, y: -15, z: 0}
+  spawnAreaRect:
+    x: 14
+    y: -14
+    width: 5
+    height: 5
+  topExitNode: {x: 14, y: -9, z: 0}
+  bottomExitNode: {x: 14, y: -18, z: 0}
 --- !u!70 &6143682723688731148
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

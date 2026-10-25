@@ -5071,6 +5071,7 @@ MonoBehaviour:
   normalMoveClip: {fileID: 8300000, guid: ff3428de530960542a270c3d102d130b, type: 3}
   eatPelletClip: {fileID: 8300000, guid: 3bdc36d7ddc7f444694b6b46504866e0, type: 3}
   dustParticleSystem: {fileID: 4103338634240832296}
+  pelletManager: {fileID: 0}
   coinTilemap: {fileID: 0}
   hudManager: {fileID: 0}
   wallHitClip: {fileID: 8300000, guid: e6c100bed2223aa4f9a1561b1efd943f, type: 3}

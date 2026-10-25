@@ -19,8 +19,15 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private GameObject blockingImage;     
     [SerializeField] private TextMeshProUGUI countdownText; 
 
+    [Header("Lives UI Settings")]
+    [SerializeField] private GameObject[] lifeIcons;
+
     [Header("Game Over UI")]
     [SerializeField] private GameObject gameOverPanel;
+
+    [Header("Game Over / Win Settings")]
+    [SerializeField] private GameObject gameOverBlockingImage;
+    [SerializeField] private TextMeshProUGUI gameOverText;
 
     private int currentScore = 0;
     private float elapsedTime = 0f;
@@ -50,6 +57,8 @@ public class HUDManager : MonoBehaviour
     public IEnumerator RunRoundStartCountdown()
     {
         IsGameActive = false;
+        GhostController.GlobalCanMove = false; // Ensure ghosts are frozen at start
+        
         if (blockingImage != null) blockingImage.SetActive(true);
         if (countdownText != null) countdownText.gameObject.SetActive(true);
 
@@ -73,6 +82,7 @@ public class HUDManager : MonoBehaviour
         if (countdownText != null) countdownText.gameObject.SetActive(false);
         if (blockingImage != null) blockingImage.SetActive(false);
 
+        GhostController.GlobalCanMove = true;
         IsGameActive = true;
     }
 
@@ -114,6 +124,55 @@ public class HUDManager : MonoBehaviour
         {
             ghostScaredTimerText.gameObject.SetActive(false);
         }
+    }
+
+    public void UpdateLivesDisplay(int livesRemaining)
+    {
+        if (lifeIcons == null) return;
+
+        for (int i = 0; i < lifeIcons.Length; i++)
+        {
+            if (lifeIcons[i] != null)
+            {
+                lifeIcons[i].SetActive(i < livesRemaining);
+            }
+        }
+    }
+
+    public void TriggerWinOrGameOver(bool isWin)
+    {
+        IsGameActive = false;
+        GhostController.GlobalCanMove = false;
+
+        if (gameOverBlockingImage != null) gameOverBlockingImage.SetActive(true);
+        if (gameOverText != null)
+        {
+            gameOverText.gameObject.SetActive(true);
+            gameOverText.text = isWin ? "LEVEL CLEAR!" : "GAME OVER";
+        }
+
+        SaveScoreAndStats();
+
+        StartCoroutine(EndGameSequenceRoutine());
+    }
+
+    private void SaveScoreAndStats()
+    {
+        int savedHighScore = PlayerPrefs.GetInt("HighScore", 0);
+        float savedBestTime = PlayerPrefs.GetFloat("BestTime", float.MaxValue);
+
+        if (currentScore > savedHighScore || (currentScore == savedHighScore && elapsedTime < savedBestTime))
+        {
+            PlayerPrefs.SetInt("HighScore", currentScore);
+            PlayerPrefs.SetFloat("BestTime", elapsedTime);
+            PlayerPrefs.Save();
+        }
+    }
+
+    private IEnumerator EndGameSequenceRoutine()
+    {
+        yield return new WaitForSeconds(3f);
+        ReturnToStartScene();
     }
 
     public void ShowGameOver()

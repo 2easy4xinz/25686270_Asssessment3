@@ -17,6 +17,9 @@ public class PacStudentController : MonoBehaviour
     [SerializeField] private AudioClip eatPelletClip;
     [SerializeField] private ParticleSystem dustParticleSystem;
 
+    [Header("Pellet Manager Reference")]
+    [SerializeField] private PelletManager pelletManager;
+
     [Header("Pellet & Score References")]
     [SerializeField] private Tilemap coinTilemap; 
     [SerializeField] private HUDManager hudManager;  
@@ -67,6 +70,11 @@ public class PacStudentController : MonoBehaviour
         targetGridPos = currentGridPos;
         
         if (dustParticleSystem != null) dustParticleSystem.Stop();
+
+        if (hudManager != null)
+        {
+            hudManager.UpdateLivesDisplay(currentLives);
+        }
     }
 
     void Update()
@@ -255,6 +263,11 @@ public class PacStudentController : MonoBehaviour
             {
                 hudManager.AddScore(10);
             }
+
+            if (pelletManager != null)
+            {
+                pelletManager.PelletEaten();
+            }
         }
 
         if (powerPillTilemap != null && powerPillTilemap.HasTile(currentGridPos))
@@ -327,21 +340,56 @@ public class PacStudentController : MonoBehaviour
     private void LoseLife()
     {
         currentLives--;
-        Debug.Log("PacStudent lost a life! Lives remaining: " + currentLives);
+
+        if (hudManager != null)
+        {
+            hudManager.UpdateLivesDisplay(currentLives);
+        }
 
         if (currentLives <= 0)
         {
-            
             if (hudManager != null)
             {
-                hudManager.ShowGameOver();
+                hudManager.TriggerWinOrGameOver(false);
             }
             enabled = false;
         }
-        // else
-        // {
-        //     // TODO: Optional reset position to spawn point when losing a life
-        // }
+        else
+        {
+            isLerping = false;
+            lerpProgress = 0f;
+
+            transform.position = new Vector3(1f, -1.5f, 0f); 
+            currentGridPos = new Vector3Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y), 0);
+            targetGridPos = currentGridPos;
+            direction = Vector3Int.right;
+            currentInput = KeyCode.D;
+            lastInput = KeyCode.D;
+
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.enabled = true;
+                sr.color = Color.white;
+            }
+
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", false);
+                animator.SetInteger("Direction", 0);
+            }
+
+            if (ghosts != null)
+            {
+                foreach (var ghost in ghosts)
+                {
+                    if (ghost != null)
+                    {
+                        ghost.SetState(GhostController.GhostState.Normal);
+                    }
+                }
+            }
+        }
     }
 
     private void PlayMovementAudio()
